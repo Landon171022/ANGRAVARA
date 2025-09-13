@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>ANGRAVARA - Control de Horas</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #ffe6f2;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      color: #cc0066;
+      text-align: center;
+    }
+    .container {
+      max-width: 800px;
+      margin: auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    input, select, button {
+      padding: 8px;
+      margin: 5px 0;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      width: 100%;
+    }
+    button {
+      background: #cc0066;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #a50052;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: center;
+    }
+    th {
+      background: #cc0066;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>ANGRAVARA</h1>
+    <h3>Registro de Empleados</h3>
+    <input type="text" id="nombre" placeholder="Nombre del empleado">
+    <input type="number" id="tarifa" placeholder="Tarifa por hora (₡)">
+    <button onclick="registrarEmpleado()">Registrar Empleado</button>
+
+    <h3>Registro de Horas</h3>
+    <select id="empleadoSelect"></select>
+    <input type="date" id="fecha">
+    <input type="number" id="horas" placeholder="Horas trabajadas">
+    <button onclick="registrarHoras()">Añadir Horas</button>
+
+    <h3>Reporte</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Empleado</th>
+          <th>Horas</th>
+          <th>Tarifa</th>
+          <th>Pago Total</th>
+        </tr>
+      </thead>
+      <tbody id="tablaEmpleados"></tbody>
+    </table>
+  </div>
+
+  <script>
+    let empleados = [];
+    let horasTrabajadas = {};
+
+    function registrarEmpleado() {
+      const nombre = document.getElementById("nombre").value;
+      const tarifa = parseFloat(document.getElementById("tarifa").value);
+      if (!nombre || isNaN(tarifa) || tarifa <= 0) {
+        alert("Ingrese nombre y tarifa válida");
+        return;
+      }
+      empleados.push({ nombre, tarifa });
+      horasTrabajadas[nombre] = 0;
+      actualizarSelect();
+      actualizarTabla();
+      document.getElementById("nombre").value = "";
+      document.getElementById("tarifa").value = "";
+    }
+
+    function actualizarSelect() {
+      const select = document.getElementById("empleadoSelect");
+      select.innerHTML = "";
+      empleados.forEach(emp => {
+        const option = document.createElement("option");
+        option.value = emp.nombre;
+        option.textContent = `${emp.nombre} — ₡${emp.tarifa}/h`;
+        select.appendChild(option);
+      });
+    }
+
+    function registrarHoras() {
+      const nombre = document.getElementById("empleadoSelect").value;
+      const fecha = document.getElementById("fecha").value;
+      const horas = parseFloat(document.getElementById("horas").value);
+      if (!nombre || !fecha || isNaN(horas) || horas <= 0) {
+        alert("Complete todos los campos");
+        return;
+      }
+      horasTrabajadas[nombre] += horas;
+      actualizarTabla();
+      document.getElementById("fecha").value = "";
+      document.getElementById("horas").value = "";
+    }
+
+    function actualizarTabla() {
+      const tbody = document.getElementById("tablaEmpleados");
+      tbody.innerHTML = "";
+      empleados.forEach(emp => {
+        const totalHoras = horasTrabajadas[emp.nombre] || 0;
+        const pago = totalHoras * emp.tarifa;
+        const row = `
+          <tr>
+            <td>${emp.nombre}</td>
+            <td>${totalHoras}</td>
+            <td>₡${emp.tarifa}</td>
+            <td>₡${pago.toFixed(2)}</td>
+          </tr>`;
+        tbody.innerHTML += row;
+      });
+    }
+  </script>
+</body>
+</html>
